@@ -31,6 +31,7 @@ func main() {
 	handler.HandleFunc("POST /admin/reset", apiConfig.ResetMetrics)
 	handler.HandleFunc("POST /api/users", apiConfig.CreateUser)
 	handler.HandleFunc("POST /api/chirps", apiConfig.CreateChirp)
+	handler.HandleFunc("GET /api/chirps", apiConfig.GetChirps)
 	handler.Handle("/app/", fileServer)
 	server := http.Server{
 		Handler: handler,
