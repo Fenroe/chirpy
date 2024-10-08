@@ -1,8 +1,9 @@
-package main
+package config
 
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -10,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type createUserReqBody struct {
+type CreateUserParams struct {
 	Email string `json:"email"`
 }
 
@@ -21,23 +22,27 @@ type User struct {
 	Email     string    `json:"email"`
 }
 
-func (cfg *apiConfig) createUser(res http.ResponseWriter, req *http.Request) {
+type CreateUserError struct {
+	Error string `json:"error"`
+}
+
+func (C *Config) CreateUser(res http.ResponseWriter, req *http.Request) {
 	defer res.Header().Set("Content-Type", "application/json")
-	reqBody := createUserReqBody{}
+	reqBody := CreateUserParams{}
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&reqBody)
 	if err != nil {
 		log.Printf("Error marshalling JSON: %s", err)
 		res.WriteHeader(500)
-		errorRes, _ := json.Marshal(errorVals{Error: err})
+		errorRes, _ := json.Marshal(CreateUserError{Error: fmt.Sprint(err)})
 		res.Write(errorRes)
 		return
 	}
-	user, err := cfg.databaseQueries.CreateUser(context.Background(), reqBody.Email)
+	user, err := C.Queries.CreateUser(context.Background(), reqBody.Email)
 	if err != nil {
 		log.Printf("Error marshalling JSON: %s", err)
 		res.WriteHeader(500)
-		errorRes, _ := json.Marshal(errorVals{Error: err})
+		errorRes, _ := json.Marshal(CreateUserError{Error: fmt.Sprint(err)})
 		res.Write(errorRes)
 		return
 	}
