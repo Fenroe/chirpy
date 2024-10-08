@@ -9,13 +9,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Fenroe/chirpy/internal/auth"
 	"github.com/Fenroe/chirpy/internal/database"
 	"github.com/google/uuid"
 )
 
 type ValidateChirpParams struct {
-	Body   string    `json:"body"`
-	UserID uuid.UUID `json:"user_id"`
+	Body string `json:"body"`
 }
 
 type ValidateChirpErrors struct {
@@ -66,6 +66,20 @@ func (C *Config) CreateChirp(res http.ResponseWriter, req *http.Request) {
 		res.Write(errorRes)
 		return
 	}
+	bearerToken, err := auth.GetBearerToken(req.Header)
+	if err != nil {
+		res.WriteHeader(401)
+		errorRes, _ := json.Marshal(ValidateChirpErrors{Error: err.Error()})
+		res.Write(errorRes)
+		return
+	}
+	userID, err := auth.ValidateJWT(bearerToken, C.JWTSecret)
+	if err != nil {
+		res.WriteHeader(401)
+		errorRes, _ := json.Marshal(ValidateChirpErrors{Error: err.Error()})
+		res.Write(errorRes)
+		return
+	}
 	cleanedChirp, isValid := validateChirp(body.Body)
 	if !isValid {
 		res.WriteHeader(400)
@@ -75,7 +89,7 @@ func (C *Config) CreateChirp(res http.ResponseWriter, req *http.Request) {
 	}
 	values := database.CreateChirpParams{
 		Body:   cleanedChirp,
-		UserID: body.UserID,
+		UserID: userID,
 	}
 	newChirp, err := C.Queries.CreateChirp(context.Background(), values)
 	if err != nil {

@@ -16,7 +16,7 @@ import (
 func main() {
 	godotenv.Load()
 	dbURL := os.Getenv("DB_URL")
-	fmt.Println(os.Getenv("PLATFORM"))
+	secret := os.Getenv("JWT_SECRET")
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Printf("An error occurred: %v", err)
@@ -24,6 +24,7 @@ func main() {
 	dbQueries := database.New(db)
 	apiConfig := config.Config{}
 	apiConfig.Queries = dbQueries
+	apiConfig.JWTSecret = secret
 	handler := http.NewServeMux()
 	fileServer := apiConfig.MiddlewareMetricsInc(http.StripPrefix("/app/", http.FileServer(http.Dir("."))))
 	handler.HandleFunc("GET /api/healthz", apiConfig.Readiness)
@@ -33,6 +34,7 @@ func main() {
 	handler.HandleFunc("POST /api/chirps", apiConfig.CreateChirp)
 	handler.HandleFunc("GET /api/chirps/{chirpID}", apiConfig.GetChirp)
 	handler.HandleFunc("GET /api/chirps", apiConfig.GetChirps)
+	handler.HandleFunc("POST /api/login", apiConfig.Login)
 	handler.Handle("/app/", fileServer)
 	server := http.Server{
 		Handler: handler,

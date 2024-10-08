@@ -7,6 +7,7 @@ import (
 )
 
 type Config struct {
-	FileserverHits  atomic.Int32
-	Queries *database.Queries
+	FileserverHits atomic.Int32
+	Queries        *database.Queries
+	JWTSecret      string
 }

@@ -8,11 +8,14 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Fenroe/chirpy/internal/auth"
+	"github.com/Fenroe/chirpy/internal/database"
 	"github.com/google/uuid"
 )
 
 type CreateUserParams struct {
-	Email string `json:"email"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type User struct {
@@ -20,6 +23,7 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Email     string    `json:"email"`
+	Token     string    `json:"token"`
 }
 
 type CreateUserError struct {
@@ -38,7 +42,12 @@ func (C *Config) CreateUser(res http.ResponseWriter, req *http.Request) {
 		res.Write(errorRes)
 		return
 	}
-	user, err := C.Queries.CreateUser(context.Background(), reqBody.Email)
+	hash, _ := auth.HashPassword(reqBody.Password)
+	params := database.CreateUserParams{
+		Email:          reqBody.Email,
+		HashedPassword: hash,
+	}
+	user, err := C.Queries.CreateUser(context.Background(), params)
 	if err != nil {
 		log.Printf("Error marshalling JSON: %s", err)
 		res.WriteHeader(500)
