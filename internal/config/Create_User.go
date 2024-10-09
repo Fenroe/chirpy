@@ -19,16 +19,19 @@ type CreateUserParams struct {
 }
 
 type User struct {
-	ID        uuid.UUID `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Email     string    `json:"email"`
-	Token     string    `json:"token"`
+	ID           uuid.UUID `json:"id"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	Email        string    `json:"email"`
+	Token        string    `json:"token"`
+	RefreshToken string    `json:"refresh_token"`
 }
 
 type CreateUserError struct {
 	Error string `json:"error"`
 }
+
+
 
 func (C *Config) CreateUser(res http.ResponseWriter, req *http.Request) {
 	defer res.Header().Set("Content-Type", "application/json")

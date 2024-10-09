@@ -9,21 +9,26 @@ import (
 	"time"
 
 	"github.com/Fenroe/chirpy/internal/auth"
+	"github.com/Fenroe/chirpy/internal/database"
 )
 
 type LoginParams struct {
-	Email            string `json:"email"`
-	Password         string `json:"password"`
-	ExpiresInSeconds int    `json:"expires_in_seconds"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func (C *Config) storeAccessToken(params database.CreateRefreshTokenParams) (database.RefreshToken, error) {
+	rt, err := C.Queries.CreateRefreshToken(context.Background(), params)
+	if err != nil {
+		C.storeAccessToken(params)
+	}
+	return rt, err
 }
 
 func (C *Config) Login(res http.ResponseWriter, req *http.Request) {
 	defer res.Header().Set("Content-Type", "application/json")
 	body := LoginParams{}
-	expiresInSeconds := body.ExpiresInSeconds
-	if expiresInSeconds < 1 || expiresInSeconds > 3600 {
-		expiresInSeconds = 3600
-	}
+	expiresInSeconds := 3600
 	fmt.Println(expiresInSeconds)
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&body)
@@ -55,12 +60,20 @@ func (C *Config) Login(res http.ResponseWriter, req *http.Request) {
 		res.Write(errorRes)
 		return
 	}
+	refreshToken, _ := auth.MakeRefreshToken()
+	refreshTokenParams := database.CreateRefreshTokenParams{
+		Token:     refreshToken,
+		UserID:    user.ID,
+		ExpiresAt: time.Now().Add(time.Duration(60) * (time.Duration(24) * time.Hour)),
+	}
+	rt, _ := C.storeAccessToken(refreshTokenParams)
 	userJSON := User{
-		ID:        user.ID,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-		Email:     user.Email,
-		Token:     token,
+		ID:           user.ID,
+		CreatedAt:    user.CreatedAt,
+		UpdatedAt:    user.UpdatedAt,
+		Email:        user.Email,
+		Token:        token,
+		RefreshToken: rt.Token,
 	}
 	res.WriteHeader(200)
 	userRes, _ := json.Marshal(userJSON)

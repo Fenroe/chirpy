@@ -35,6 +35,8 @@ func main() {
 	handler.HandleFunc("GET /api/chirps/{chirpID}", apiConfig.GetChirp)
 	handler.HandleFunc("GET /api/chirps", apiConfig.GetChirps)
 	handler.HandleFunc("POST /api/login", apiConfig.Login)
+	handler.HandleFunc("POST /api/refresh", apiConfig.Refresh)
+	handler.HandleFunc("POST /api/revoke", apiConfig.Revoke)
 	handler.Handle("/app/", fileServer)
 	server := http.Server{
 		Handler: handler,
