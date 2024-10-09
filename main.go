@@ -37,6 +37,7 @@ func main() {
 	handler.HandleFunc("POST /api/login", apiConfig.Login)
 	handler.HandleFunc("POST /api/refresh", apiConfig.Refresh)
 	handler.HandleFunc("POST /api/revoke", apiConfig.Revoke)
+	handler.HandleFunc("PUT /api/users", apiConfig.UpdateUser)
 	handler.Handle("/app/", fileServer)
 	server := http.Server{
 		Handler: handler,
