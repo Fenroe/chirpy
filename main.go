@@ -38,6 +38,8 @@ func main() {
 	handler.HandleFunc("POST /api/refresh", apiConfig.Refresh)
 	handler.HandleFunc("POST /api/revoke", apiConfig.Revoke)
 	handler.HandleFunc("PUT /api/users", apiConfig.UpdateUser)
+	handler.HandleFunc("DELETE /api/chirps/{chirpID}", apiConfig.DeleteChirp)
+	handler.HandleFunc("POST /api/polka/webhooks", apiConfig.UpgradeUserWebhook)
 	handler.Handle("/app/", fileServer)
 	server := http.Server{
 		Handler: handler,

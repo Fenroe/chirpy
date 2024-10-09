@@ -25,13 +25,12 @@ type User struct {
 	Email        string    `json:"email"`
 	Token        string    `json:"token"`
 	RefreshToken string    `json:"refresh_token"`
+	IsChirpyRed  bool      `json:"is_chirpy_red"`
 }
 
 type CreateUserError struct {
 	Error string `json:"error"`
 }
-
-
 
 func (C *Config) CreateUser(res http.ResponseWriter, req *http.Request) {
 	defer res.Header().Set("Content-Type", "application/json")
@@ -59,10 +58,11 @@ func (C *Config) CreateUser(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	resUser := User{
-		ID:        user.ID,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-		Email:     user.Email,
+		ID:          user.ID,
+		CreatedAt:   user.CreatedAt,
+		UpdatedAt:   user.UpdatedAt,
+		Email:       user.Email,
+		IsChirpyRed: user.IsChirpyRed,
 	}
 	responseJson, _ := json.Marshal(resUser)
 	res.WriteHeader(201)

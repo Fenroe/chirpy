@@ -3,7 +3,6 @@ package config
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -11,7 +10,6 @@ import (
 
 func (C *Config) GetChirp(res http.ResponseWriter, req *http.Request) {
 	chirpID, _ := uuid.Parse(req.PathValue("chirpID"))
-	fmt.Println(chirpID)
 	chirp, err := C.Queries.GetChirp(context.Background(), chirpID)
 	if err != nil {
 		res.WriteHeader(404)

@@ -52,10 +52,11 @@ func (C *Config) UpdateUser(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	resUser := User{
-		ID:        user.ID,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-		Email:     user.Email,
+		ID:          user.ID,
+		CreatedAt:   user.CreatedAt,
+		UpdatedAt:   user.UpdatedAt,
+		Email:       user.Email,
+		IsChirpyRed: user.IsChirpyRed,
 	}
 	responseJson, _ := json.Marshal(resUser)
 	res.WriteHeader(200)

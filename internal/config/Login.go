@@ -74,6 +74,7 @@ func (C *Config) Login(res http.ResponseWriter, req *http.Request) {
 		Email:        user.Email,
 		Token:        token,
 		RefreshToken: rt.Token,
+		IsChirpyRed:  user.IsChirpyRed,
 	}
 	res.WriteHeader(200)
 	userRes, _ := json.Marshal(userJSON)
