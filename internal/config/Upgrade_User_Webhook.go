@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Fenroe/chirpy/internal/auth"
 	"github.com/google/uuid"
 )
 
@@ -18,9 +19,18 @@ type upgradeUserReq struct {
 
 func (C *Config) UpgradeUserWebhook(res http.ResponseWriter, req *http.Request) {
 	defer res.Header().Set("Content-Type", "application/json")
+	apiKey, err := auth.GetAPIKey(req.Header)
+	if err != nil {
+		res.WriteHeader(401)
+		return
+	}
+	if apiKey != C.PulkaKey {
+		res.WriteHeader(401)
+		return
+	}
 	reqBody := upgradeUserReq{}
 	decoder := json.NewDecoder(req.Body)
-	err := decoder.Decode(&reqBody)
+	err = decoder.Decode(&reqBody)
 	if err != nil {
 		log.Printf("Error marshalling JSON: %s", err)
 		res.WriteHeader(500)
