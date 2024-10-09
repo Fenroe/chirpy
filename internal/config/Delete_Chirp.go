@@ -32,7 +32,11 @@ func (C *Config) DeleteChirp(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(401)
 		return
 	}
-	if userID != chirp.UserID {
+	nullUserID := uuid.NullUUID{
+		UUID:  userID,
+		Valid: true,
+	}
+	if nullUserID != chirp.UserID {
 		res.WriteHeader(403)
 		return
 	}

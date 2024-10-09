@@ -27,11 +27,11 @@ type ValidateChripRes struct {
 }
 
 type CreateChirpRes struct {
-	ID        uuid.UUID `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Body      string    `json:"body"`
-	UserID    uuid.UUID `json:"user_id"`
+	ID        uuid.UUID     `json:"id"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt time.Time     `json:"updated_at"`
+	Body      string        `json:"body"`
+	UserID    uuid.NullUUID `json:"user_id"`
 }
 
 var profanity = []string{"kerfuffle", "sharbert", "formax"}
@@ -88,8 +88,11 @@ func (C *Config) CreateChirp(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	values := database.CreateChirpParams{
-		Body:   cleanedChirp,
-		UserID: userID,
+		Body: cleanedChirp,
+		UserID: uuid.NullUUID{
+			UUID:  userID,
+			Valid: true,
+		},
 	}
 	newChirp, err := C.Queries.CreateChirp(context.Background(), values)
 	if err != nil {
